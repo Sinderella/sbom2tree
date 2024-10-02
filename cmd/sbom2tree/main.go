@@ -55,23 +55,32 @@ func main() {
 func printDependencies(bom *cdx.BOM, searchTerm string) {
 	// Print the dependencies in a tree-like structure
 	for _, dependency := range *bom.Dependencies {
-		shouldPrint := searchTerm == "" || strings.Contains(dependency.Ref, searchTerm)
-		if !shouldPrint && dependency.Dependencies != nil {
-			for _, subDependency := range *dependency.Dependencies {
-				if strings.Contains(subDependency, searchTerm) {
-					shouldPrint = true
-					break
-				}
+		if shouldPrintDependency(dependency, searchTerm) {
+			printDependency(dependency, searchTerm, "")
+		}
+	}
+}
+
+func shouldPrintDependency(dependency cdx.Dependency, searchTerm string) bool {
+	if searchTerm == "" || strings.Contains(dependency.Ref, searchTerm) {
+		return true
+	}
+	if dependency.Dependencies != nil {
+		for _, subDependency := range *dependency.Dependencies {
+			if strings.Contains(subDependency, searchTerm) {
+				return true
 			}
 		}
-		if shouldPrint {
-			fmt.Printf("|-- %s\n", dependency.Ref)
-			if dependency.Dependencies != nil {
-				for _, subDependency := range *dependency.Dependencies {
-					if searchTerm == "" || strings.Contains(subDependency, searchTerm) {
-						fmt.Printf("|   |-- %s\n", subDependency)
-					}
-				}
+	}
+	return false
+}
+
+func printDependency(dependency cdx.Dependency, searchTerm, prefix string) {
+	fmt.Printf("%s|-- %s\n", prefix, dependency.Ref)
+	if dependency.Dependencies != nil {
+		for _, subDependency := range *dependency.Dependencies {
+			if searchTerm == "" || strings.Contains(subDependency, searchTerm) {
+				fmt.Printf("%s|   |-- %s\n", prefix, subDependency)
 			}
 		}
 	}
