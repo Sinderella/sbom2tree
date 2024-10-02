@@ -1,4 +1,4 @@
-name: Build Syncthing
+name: Build sbom2tree
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Build
-        run: go build ./cmd/sbom2tree -o sbom2tree
+        run: go build ./cmd/sbom2tree
       - name: Archive
         run: tar -czf sbom2tree-macos-arm64.tar.gz sbom2tree
       - name: Upload a Build Artifact
